@@ -1,0 +1,22 @@
+services:
+  gold-collector-dotnet:
+    build:
+      context: ../..
+      dockerfile: deploy/docker/Dockerfile
+    container_name: gold-collector-dotnet
+    restart: always
+    network_mode: host
+    ports:
+      - "41736:41736"
+    env_file:
+      - .env
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://0.0.0.0:41736
+    volumes:
+      - ./docker-data/logs:/app/logs
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

@@ -1,0 +1,20 @@
+services:
+  gold-collector-java:
+    build:
+      context: ../..
+      dockerfile: deploy/docker/Dockerfile.java
+    container_name: gold-collector-java
+    restart: always
+    network_mode: host
+    ports:
+      - "41736:41736"
+    env_file:
+      - .env.java
+    environment:
+      SERVER_PORT: 41736
+      JAVA_OPTS: ""
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

@@ -1,0 +1,128 @@
+openapi: 3.0.3
+info:
+  title: Open Gold System API
+  version: 1.0.0
+  description: Gold price collection and query API shared by the Java and .NET backends.
+servers:
+  - url: http://localhost:41736
+paths:
+  /api/collect:
+    post:
+      summary: Trigger manual collection
+      responses:
+        '200':
+          description: Collection completed or accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectResult'
+        '409':
+          description: A collection task is already running
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectResult'
+        '502':
+          description: Collection failed
+  /api/latest:
+    get:
+      summary: Get latest gold price record
+      responses:
+        '200':
+          description: Latest record
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoldPriceResponse'
+        '404':
+          description: No record available
+  /api/history:
+    get:
+      summary: Get recent gold price records
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+      responses:
+        '200':
+          description: Recent records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GoldPriceResponse'
+  /api/prices:
+    get:
+      summary: Get records by date range
+      parameters:
+        - in: query
+          name: startDate
+          required: false
+          schema:
+            type: string
+            format: date
+        - in: query
+          name: endDate
+          required: false
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Date range records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GoldPriceResponse'
+        '400':
+          description: Invalid date range
+components:
+  schemas:
+    GoldPriceResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        priceUsd:
+          type: number
+        priceCny:
+          type: number
+        exchangeRate:
+          type: number
+        priceUsdChange:
+          type: number
+        priceCnyChange:
+          type: number
+        priceChangePct:
+          type: number
+        month:
+          type: integer
+        year:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        createdDate:
+          type: string
+          format: date
+    CollectResult:
+      type: object
+      properties:
+        success:
+          type: boolean
+        skipped:
+          type: boolean
+        message:
+          type: string
+        record:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/GoldPriceResponse'

@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <!-- 背景圆形 -->
+  <circle cx="100" cy="100" r="95" fill="#1a1a2e"/>
+  
+  <!-- 外圈金色边框 -->
+  <circle cx="100" cy="100" r="90" fill="none" stroke="#e6a23c" stroke-width="4"/>
+  
+  <!-- 内部装饰圆环 -->
+  <circle cx="100" cy="100" r="80" fill="none" stroke="#d4a017" stroke-width="2" opacity="0.5"/>
+  
+  <!-- 黄金符号 ¥ 的变形设计 -->
+  <g transform="translate(100, 100)">
+    <!-- 黄金条形状 -->
+    <rect x="-40" y="-50" width="80" height="30" rx="5" fill="url(#goldGradient)" stroke="#b8860b" stroke-width="2"/>
+    <rect x="-40" y="-15" width="80" height="30" rx="5" fill="url(#goldGradient)" stroke="#b8860b" stroke-width="2"/>
+    <rect x="-40" y="20" width="80" height="30" rx="5" fill="url(#goldGradient)" stroke="#b8860b" stroke-width="2"/>
+    
+    <!-- 上升趋势线 -->
+    <polyline points="-50,50 -20,20 10,35 40,0 50,-10" 
+              fill="none" 
+              stroke="#4ade80" 
+              stroke-width="6" 
+              stroke-linecap="round" 
+              stroke-linejoin="round"/>
+    
+    <!-- 上升箭头 -->
+    <polygon points="50,-10 40,-5 40,-15" fill="#4ade80"/>
+  </g>
+  
+  <!-- 渐变定义 -->
+  <defs>
+    <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffd700;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#e6a23c;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#b8860b;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+</svg>
