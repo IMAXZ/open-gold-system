@@ -5,7 +5,7 @@
 本仓库采用单仓库结构，按“前端应用 + 后端实现 + 契约 + 部署”拆分：
 
 - `apps/web` 负责图表展示和用户交互
-- `backend/java` 提供 Spring Boot 版本后端
+- `backend/java` 提供 Spring Boot + MyBatis-Plus 版本后端
 - `backend/dotnet` 提供 ASP.NET Core 版本后端
 - `contracts/openapi` 用于沉淀共享接口契约
 - `deploy/docker` 提供 `.NET` 与 `Java` 两套容器化部署方式

@@ -22,6 +22,7 @@ pnpm-debug.log*
 
 # Java
 backend/java/target/
+.m2/
 
 # .NET
 backend/dotnet/**/bin/

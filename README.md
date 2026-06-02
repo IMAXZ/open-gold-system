@@ -5,7 +5,7 @@
 当前仓库包含三部分：
 
 - `apps/web`：Vue 3 前端页面
-- `backend/java`：Spring Boot 后端实现
+- `backend/java`：Spring Boot + MyBatis-Plus 后端实现
 - `backend/dotnet`：ASP.NET Core 后端实现
 
 当前默认将 `.NET` 实现视为主实现，原因是它已经具备更完整的测试与 Docker 部署文件。`Java` 实现保留为同接口能力的备选实现。

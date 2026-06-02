@@ -45,6 +45,10 @@ mvn spring-boot:run
 
 - [backend/java/src/main/resources/application.yml](/E:/2026/05/open-gold-system/backend/java/src/main/resources/application.yml)
 
+持久化层：
+
+- Java 版本当前使用 `MyBatis-Plus`
+
 默认端口：
 
 - `41736`

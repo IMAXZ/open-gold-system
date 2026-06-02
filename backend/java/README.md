@@ -6,7 +6,7 @@
 
 - Spring Boot 3.2
 - Spring Web / WebFlux
-- Spring Data JPA
+- MyBatis-Plus
 - MySQL
 - Spring Retry
 
@@ -32,6 +32,12 @@ mvn clean package
 主要配置文件：
 
 - `src/main/resources/application.yml`
+
+持久化说明：
+
+- 当前使用 `MyBatis-Plus` 作为数据访问层
+- 实体映射见 `src/main/java/com/gold/collector/entity`
+- Mapper 接口见 `src/main/java/com/gold/collector/mapper`
 
 默认端口：
 

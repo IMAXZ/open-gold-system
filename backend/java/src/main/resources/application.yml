@@ -5,16 +5,11 @@ spring:
     password: ${GOLD_DB_PASSWORD:123456}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
-  jpa:
-    hibernate:
-      ddl-auto: none
-    show-sql: true
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.MySQL8Dialect
-        format_sql: true
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
-# 定时任务配置
 gold:
   enabled: true
   api:
@@ -25,11 +20,9 @@ gold:
   exchange-rate:
     default: 7.25
 
-# 应用配置
 server:
   port: 41736
 
-# 跨域配置
 cors:
   enabled: true
   allowed-origin-patterns: "*"
