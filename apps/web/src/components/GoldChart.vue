@@ -25,6 +25,8 @@
       @update:start-date="startDate = $event"
     />
 
+    <GoldStatsPanel :chart-type="chartType" :currency="currency" :stats="stats" />
+
     <section class="chart-panel">
       <div class="chart-panel__meta">
         <div>
@@ -48,8 +50,6 @@
         </div>
       </div>
     </section>
-
-    <GoldStatsPanel :chart-type="chartType" :currency="currency" :stats="stats" />
   </div>
 </template>
 

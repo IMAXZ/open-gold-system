@@ -79,7 +79,7 @@ export default {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 14px;
-  margin-top: 18px;
+  margin: 0 0 18px;
 }
 
 .stat-card {
