@@ -47,6 +47,6 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
-      - run: dotnet restore .\GoldCollector.DotNet.slnx --configfile ..\..\NuGet.Config
-      - run: dotnet build .\GoldCollector.DotNet.slnx -c Release --no-restore
-      - run: dotnet test .\GoldCollector.DotNet.slnx -c Release --no-build
+      - run: dotnet restore ./GoldCollector.DotNet.slnx --configfile ../../NuGet.Config
+      - run: dotnet build ./GoldCollector.DotNet.slnx -c Release --no-restore
+      - run: dotnet test ./GoldCollector.DotNet.slnx -c Release --no-build
