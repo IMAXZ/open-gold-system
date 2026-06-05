@@ -21,7 +21,7 @@ public sealed class GoldPriceController(
                 return Ok(result);
             }
 
-            return result.Message.Contains("already running", StringComparison.OrdinalIgnoreCase)
+            return result.Skipped && string.Equals(result.Message, "已有采集任务正在执行。", StringComparison.Ordinal)
                 ? Conflict(result)
                 : Ok(result);
         }

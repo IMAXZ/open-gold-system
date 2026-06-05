@@ -38,7 +38,7 @@ public sealed class CollectorServiceTests
 
         Assert.False(secondRun.Success);
         Assert.True(secondRun.Skipped);
-        Assert.Contains("already running", secondRun.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("已有采集任务正在执行", secondRun.Message, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -58,7 +58,9 @@ public sealed class CollectorServiceTests
         Assert.True(result.Success);
         Assert.NotNull(result.Record);
         Assert.Equal(10m, result.Record!.PriceUsdChange);
-        Assert.Equal(2m, result.Record.PriceCnyChange);
+        Assert.Equal(0.228250m, repository.LastInserted!.PriceCnyChange);
+        Assert.Equal(0.228250m, result.Record.PriceCnyChange);
+        Assert.Equal(0.3125m, repository.LastInserted!.PriceChangePct);
         Assert.Equal(0.3125m, result.Record.PriceChangePct);
     }
 
