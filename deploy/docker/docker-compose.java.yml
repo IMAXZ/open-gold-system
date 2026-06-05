@@ -12,7 +12,8 @@ services:
       - .env.java
     environment:
       SERVER_PORT: 41736
-      JAVA_OPTS: ""
+      TZ: Asia/Shanghai
+      JAVA_OPTS: "-Duser.timezone=Asia/Shanghai"
     logging:
       driver: json-file
       options:

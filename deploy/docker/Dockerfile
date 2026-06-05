@@ -14,6 +14,7 @@ WORKDIR /app
 
 ENV ASPNETCORE_URLS=http://0.0.0.0:41736
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
+ENV TZ=Asia/Shanghai
 
 COPY --from=build /app/publish ./
 

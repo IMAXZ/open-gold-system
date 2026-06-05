@@ -1,13 +1,10 @@
 [CmdletBinding()]
 param(
-  [Parameter(Mandatory = $true)]
-  [string]$ServerHost,
+  [string]$ServerHost = "120.48.88.219",
 
-  [Parameter(Mandatory = $true)]
-  [string]$User,
+  [string]$User = "root",
 
-  [Parameter(Mandatory = $true)]
-  [string]$TargetDir,
+  [string]$TargetDir = "/usr/app/gold-chart",
 
   [int]$Port = 22,
 

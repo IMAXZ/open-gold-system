@@ -13,6 +13,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_URLS: http://0.0.0.0:41736
+      TZ: Asia/Shanghai
     volumes:
       - ./docker-data/logs:/app/logs
     logging:

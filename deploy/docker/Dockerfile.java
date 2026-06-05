@@ -10,7 +10,8 @@ FROM eclipse-temurin:17-jre
 WORKDIR /app
 
 ENV SERVER_PORT=41736
-ENV JAVA_OPTS=""
+ENV TZ=Asia/Shanghai
+ENV JAVA_OPTS="-Duser.timezone=Asia/Shanghai"
 
 COPY --from=build /src/backend/java/target/gold-collector-1.0.0.jar ./gold-collector.jar
 

@@ -7,6 +7,12 @@ using Quartz;
 using Serilog;
 using System.Net;
 
+if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("TZ")))
+{
+    Environment.SetEnvironmentVariable("TZ", "Asia/Shanghai");
+    TimeZoneInfo.ClearCachedData();
+}
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.UseSerilog((context, services, configuration) => configuration
