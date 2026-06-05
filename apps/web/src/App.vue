@@ -4,13 +4,21 @@
     <div class="ambient ambient--two"></div>
 
     <header class="hero">
-      <div class="brand-mark">
-        <img src="./assets/logo.svg" alt="黄金价格仪表盘" class="hero-logo" />
+      <div class="hero-main">
+        <div class="brand-mark">
+          <img src="./assets/logo.svg" alt="黄金价格仪表盘" class="hero-logo" />
+        </div>
+        <div class="hero-copy">
+          <p class="hero-kicker">Gold Market View</p>
+          <h1>黄金价格看板</h1>
+          <p>更紧凑地查看价格、涨跌幅与区间统计。</p>
+        </div>
       </div>
-      <div class="hero-copy">
-        <p class="hero-kicker">Gold Market View</p>
-        <h1>黄金价格与汇率联动看板</h1>
-        <p>支持美元与人民币双视角，价格、涨跌幅、汇率与对比视图一屏切换。</p>
+
+      <div class="hero-badges">
+        <span class="hero-badge">实时筛选</span>
+        <span class="hero-badge">人民币 / 美元</span>
+        <span class="hero-badge">区间统计</span>
       </div>
     </header>
 
@@ -72,7 +80,7 @@ body.gold-dashboard-dark {
 .app-shell {
   position: relative;
   overflow: hidden;
-  padding: 28px 20px 40px;
+  padding: 18px 20px 32px;
 }
 
 .ambient {
@@ -94,7 +102,7 @@ body.gold-dashboard-dark {
 
 .ambient--two {
   left: -90px;
-  top: 240px;
+  top: 200px;
   width: 300px;
   height: 300px;
   background: rgba(69,208,227,0.12);
@@ -112,17 +120,31 @@ body.gold-dashboard-light .ambient--two {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 18px;
+  justify-content: space-between;
+  gap: 16px;
   max-width: 1280px;
-  margin: 0 auto 18px;
+  margin: 0 auto 14px;
+  padding: 14px 18px;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 24px;
+  background: rgba(255,255,255,0.04);
+  backdrop-filter: blur(14px);
+}
+
+.hero-main {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
 }
 
 .brand-mark {
-  width: 74px;
-  height: 74px;
+  width: 58px;
+  height: 58px;
   display: grid;
   place-items: center;
-  border-radius: 24px;
+  flex-shrink: 0;
+  border-radius: 18px;
   border: 1px solid rgba(255,255,255,0.12);
   background: rgba(255,255,255,0.07);
   backdrop-filter: blur(14px);
@@ -135,18 +157,20 @@ body.gold-dashboard-light .brand-mark {
 }
 
 .hero-logo {
-  width: 42px;
-  height: 42px;
+  width: 32px;
+  height: 32px;
 }
 
 .hero-copy h1 {
   margin: 0;
-  font-size: 30px;
-  line-height: 1.06;
+  font-size: 24px;
+  line-height: 1.08;
+  white-space: nowrap;
 }
 
 .hero-copy p {
-  margin: 8px 0 0;
+  margin: 4px 0 0;
+  font-size: 13px;
   color: rgba(255,245,225,0.72);
   transition: color 0.25s ease;
 }
@@ -156,9 +180,9 @@ body.gold-dashboard-light .hero-copy p {
 }
 
 .hero-kicker {
-  margin: 0 0 8px;
-  font-size: 11px;
-  letter-spacing: 0.24em;
+  margin: 0 0 4px;
+  font-size: 10px;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
   color: rgba(255,219,136,0.72);
 }
@@ -167,24 +191,67 @@ body.gold-dashboard-light .hero-kicker {
   color: rgba(98,67,10,0.8);
 }
 
+.hero-badges {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,245,225,0.84);
+  font-size: 12px;
+}
+
+body.gold-dashboard-light .hero-badge {
+  background: rgba(255,255,255,0.82);
+  border-color: rgba(170,130,40,0.16);
+  color: rgba(54,37,10,0.84);
+}
+
 @media (max-width: 768px) {
   .hero {
     align-items: flex-start;
+    flex-direction: column;
   }
 
   .hero-copy h1 {
-    font-size: 24px;
+    font-size: 22px;
+    white-space: normal;
+  }
+
+  .hero-badges {
+    justify-content: flex-start;
   }
 }
 
 @media (max-width: 480px) {
   .app-shell {
-    padding: 18px 12px 32px;
+    padding: 12px 12px 24px;
   }
 
   .hero {
-    flex-direction: column;
+    padding: 12px 14px;
+  }
+
+  .hero-main {
     align-items: flex-start;
+  }
+
+  .brand-mark {
+    width: 52px;
+    height: 52px;
+  }
+
+  .hero-copy h1 {
+    font-size: 20px;
   }
 }
 </style>

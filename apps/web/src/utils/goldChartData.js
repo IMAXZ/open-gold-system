@@ -59,6 +59,57 @@ export function aggregateChartData(data, minutes) {
   return buildChartData(aggregatedPrices)
 }
 
+function toFixedString(value, digits) {
+  return value.toFixed(digits)
+}
+
+function calcPercentChange(current, base, digits = 3) {
+  if (!base) {
+    return toFixedString(0, digits)
+  }
+
+  return toFixedString(((current - base) / base) * 100, digits)
+}
+
+function calcRangePercent(max, min, digits = 2) {
+  if (!min) {
+    return toFixedString(0, digits)
+  }
+
+  return toFixedString(((max - min) / min) * 100, digits)
+}
+
+function calcPositionPercent(current, min, max) {
+  if (max <= min) {
+    return toFixedString(50, 0)
+  }
+
+  const raw = ((current - min) / (max - min)) * 100
+  const normalized = Math.min(100, Math.max(0, raw))
+  return toFixedString(normalized, 0)
+}
+
+function buildSeriesStats(values, firstValue, lastValue, digits) {
+  const max = Math.max(...values)
+  const min = Math.min(...values)
+  const avg = values.reduce((sum, value) => sum + value, 0) / values.length
+
+  return {
+    max: toFixedString(max, digits),
+    min: toFixedString(min, digits),
+    avg: toFixedString(avg, digits),
+    start: toFixedString(firstValue, digits),
+    end: toFixedString(lastValue, digits),
+    change: calcPercentChange(lastValue, firstValue),
+    changePositive: lastValue >= firstValue,
+    volatility: toFixedString(max - min, digits),
+    rangePct: calcRangePercent(max, min),
+    positionPct: calcPositionPercent(lastValue, min, max),
+    fromHighPct: calcPercentChange(lastValue, max, 2),
+    fromLowPct: calcPercentChange(lastValue, min, 2)
+  }
+}
+
 export function calculateStats(data) {
   if (!data || !data.prices || data.prices.length === 0) {
     return null
@@ -70,27 +121,37 @@ export function calculateStats(data) {
   const usdPrices = prices.map((item) => item.priceUsd)
   const cnyPrices = prices.map((item) => item.priceCny)
   const rates = prices.map((item) => item.exchangeRate)
+  const usdStats = buildSeriesStats(usdPrices, first.priceUsd, last.priceUsd, 2)
+  const cnyStats = buildSeriesStats(cnyPrices, first.priceCny, last.priceCny, 2)
 
   return {
-    usdMax: Math.max(...usdPrices).toFixed(2),
-    usdMin: Math.min(...usdPrices).toFixed(2),
-    usdAvg: (usdPrices.reduce((sum, value) => sum + value, 0) / usdPrices.length).toFixed(2),
-    usdStart: first.priceUsd.toFixed(2),
-    usdEnd: last.priceUsd.toFixed(2),
-    usdChange: (((last.priceUsd - first.priceUsd) / first.priceUsd) * 100).toFixed(3),
-    usdChangePositive: last.priceUsd >= first.priceUsd,
-    usdVolatility: (Math.max(...usdPrices) - Math.min(...usdPrices)).toFixed(2),
-    cnyMax: Math.max(...cnyPrices).toFixed(2),
-    cnyMin: Math.min(...cnyPrices).toFixed(2),
-    cnyAvg: (cnyPrices.reduce((sum, value) => sum + value, 0) / cnyPrices.length).toFixed(2),
-    cnyStart: first.priceCny.toFixed(2),
-    cnyEnd: last.priceCny.toFixed(2),
-    cnyChange: (((last.priceCny - first.priceCny) / first.priceCny) * 100).toFixed(3),
-    cnyChangePositive: last.priceCny >= first.priceCny,
-    cnyVolatility: (Math.max(...cnyPrices) - Math.min(...cnyPrices)).toFixed(2),
+    usdMax: usdStats.max,
+    usdMin: usdStats.min,
+    usdAvg: usdStats.avg,
+    usdStart: usdStats.start,
+    usdEnd: usdStats.end,
+    usdChange: usdStats.change,
+    usdChangePositive: usdStats.changePositive,
+    usdVolatility: usdStats.volatility,
+    usdRangePct: usdStats.rangePct,
+    usdPositionPct: usdStats.positionPct,
+    usdFromHighPct: usdStats.fromHighPct,
+    usdFromLowPct: usdStats.fromLowPct,
+    cnyMax: cnyStats.max,
+    cnyMin: cnyStats.min,
+    cnyAvg: cnyStats.avg,
+    cnyStart: cnyStats.start,
+    cnyEnd: cnyStats.end,
+    cnyChange: cnyStats.change,
+    cnyChangePositive: cnyStats.changePositive,
+    cnyVolatility: cnyStats.volatility,
+    cnyRangePct: cnyStats.rangePct,
+    cnyPositionPct: cnyStats.positionPct,
+    cnyFromHighPct: cnyStats.fromHighPct,
+    cnyFromLowPct: cnyStats.fromLowPct,
     rateStart: first.exchangeRate.toFixed(4),
     rateEnd: last.exchangeRate.toFixed(4),
-    rateChange: (((last.exchangeRate - first.exchangeRate) / first.exchangeRate) * 100).toFixed(3),
+    rateChange: calcPercentChange(last.exchangeRate, first.exchangeRate),
     rateChangePositive: last.exchangeRate >= first.exchangeRate,
     rateVolatility: (Math.max(...rates) - Math.min(...rates)).toFixed(4)
   }

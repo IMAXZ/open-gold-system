@@ -22,9 +22,7 @@ export const CURRENCY_OPTIONS = [
 
 export const CHART_TYPE_OPTIONS = [
   { label: '价格走势', value: 'price', icon: '折' },
-  { label: '涨跌幅', value: 'trend', icon: '幅' },
-  { label: '汇率走势', value: 'rate', icon: '率' },
-  { label: '价格对比', value: 'compare', icon: '比' }
+  { label: '涨跌幅', value: 'trend', icon: '幅' }
 ]
 
 export const UNIT_LABELS = {

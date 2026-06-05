@@ -3,13 +3,37 @@
     <article
       v-for="item in items"
       :key="item.key"
-      :class="['stat-card', item.tone ? `stat-card--${item.tone}` : '']"
+      :class="[
+        'stat-card',
+        item.tone ? `stat-card--${item.tone}` : '',
+        item.featured ? 'stat-card--featured' : '',
+        item.meter ? 'stat-card--meter' : '',
+        item.pairs ? 'stat-card--pairs' : ''
+      ]"
     >
-      <p class="stat-label">{{ item.label }}</p>
-      <p :class="['stat-value', item.valueClass]">
+      <div class="stat-head">
+        <p class="stat-label">{{ item.label }}</p>
+        <span v-if="item.badge" class="stat-badge">{{ item.badge }}</span>
+      </div>
+
+      <p v-if="!item.pairs" :class="['stat-value', item.valueClass]">
         {{ item.prefix || '' }}{{ item.value }}{{ item.suffix || '' }}
       </p>
-      <p v-if="item.helper" class="stat-helper">{{ item.helper }}</p>
+
+      <div v-if="item.meter" class="stat-meter">
+        <div class="stat-meter__fill" :style="{ width: `${item.meter}%` }"></div>
+      </div>
+
+      <div v-if="item.pairs" class="stat-pairs">
+        <div v-for="pair in item.pairs" :key="pair.label" class="stat-pair">
+          <span class="stat-pair__label">{{ pair.label }}</span>
+          <span :class="['stat-pair__value', pair.valueClass]">
+            {{ pair.value }}{{ pair.suffix || '' }}
+          </span>
+        </div>
+      </div>
+
+      <p v-if="item.formula" class="stat-formula">{{ item.formula }}</p>
     </article>
   </div>
 </template>
@@ -17,6 +41,21 @@
 <script>
 import { computed } from 'vue'
 import { getUnitLabel } from '@/utils/goldChartData'
+
+function getPriceValueClass(value, start) {
+  const current = Number(value)
+  const base = Number(start)
+
+  if (current > base) {
+    return 'up'
+  }
+
+  if (current < base) {
+    return 'down'
+  }
+
+  return ''
+}
 
 function buildItems(chartType, currency, stats) {
   if (!stats) {
@@ -26,37 +65,96 @@ function buildItems(chartType, currency, stats) {
   const unit = getUnitLabel(currency)
   const keyPrefix = currency === 'USD' ? 'usd' : 'cny'
   const tone = currency === 'USD' ? 'usd' : 'cny'
-  const fieldName = keyPrefix === 'usd' ? 'priceUsd' : 'priceCny'
-
-  if (chartType === 'rate') {
-    return [
-      { key: 'rateStart', label: '起始汇率', value: stats.rateStart, tone: 'rate', helper: '直接数据：exchangeRate[0]' },
-      { key: 'rateEnd', label: '最新汇率', value: stats.rateEnd, tone: 'rate', helper: '直接数据：exchangeRate[last]' },
-      { key: 'rateChange', label: '汇率涨跌', value: stats.rateChange, suffix: '%', valueClass: stats.rateChangePositive ? 'up' : 'down', helper: '公式：(最新汇率 - 起始汇率) / 起始汇率 × 100%' },
-      { key: 'usdEnd', label: '美元黄金', value: stats.usdEnd, tone: 'usd', helper: '直接数据：priceUsd[last]，单位：美元/盎司' },
-      { key: 'cnyEnd', label: '人民币黄金', value: stats.cnyEnd, tone: 'cny', helper: '直接数据：priceCny[last]，单位：元/克' },
-      { key: 'rateVolatility', label: '汇率振幅', value: stats.rateVolatility, tone: 'rate', helper: '公式：max(exchangeRate) - min(exchangeRate)' }
-    ]
-  }
-
-  if (chartType === 'compare') {
-    return [
-      { key: 'usdMax', label: 'USD 最高', value: stats.usdMax, tone: 'usd', helper: '公式：max(priceUsd)，单位：美元/盎司' },
-      { key: 'usdMin', label: 'USD 最低', value: stats.usdMin, tone: 'usd', helper: '公式：min(priceUsd)，单位：美元/盎司' },
-      { key: 'usdVolatility', label: 'USD 振幅', value: stats.usdVolatility, tone: 'usd', helper: '公式：max(priceUsd) - min(priceUsd)' },
-      { key: 'cnyMax', label: 'CNY 最高', value: stats.cnyMax, tone: 'cny', helper: '公式：max(priceCny)，单位：元/克' },
-      { key: 'cnyMin', label: 'CNY 最低', value: stats.cnyMin, tone: 'cny', helper: '公式：min(priceCny)，单位：元/克' },
-      { key: 'cnyVolatility', label: 'CNY 振幅', value: stats.cnyVolatility, tone: 'cny', helper: '公式：max(priceCny) - min(priceCny)' }
-    ]
-  }
+  const startValue = stats[`${keyPrefix}Start`]
+  const endValue = stats[`${keyPrefix}End`]
+  const maxValue = stats[`${keyPrefix}Max`]
+  const minValue = stats[`${keyPrefix}Min`]
+  const changeKey = `${keyPrefix}Change`
+  const positionValue = Number(stats[`${keyPrefix}PositionPct`])
+  const fromHighValue = Number(stats[`${keyPrefix}FromHighPct`])
+  const fromLowValue = Number(stats[`${keyPrefix}FromLowPct`])
 
   return [
-    { key: `${keyPrefix}Max`, label: '最高价', value: stats[`${keyPrefix}Max`], tone, helper: `公式：max(${fieldName})，单位：${unit}` },
-    { key: `${keyPrefix}Min`, label: '最低价', value: stats[`${keyPrefix}Min`], tone, helper: `公式：min(${fieldName})，单位：${unit}` },
-    { key: `${keyPrefix}Avg`, label: '平均价', value: stats[`${keyPrefix}Avg`], tone, helper: `公式：sum(${fieldName}) / N` },
-    { key: `${keyPrefix}Start`, label: '起始价', value: stats[`${keyPrefix}Start`], tone, helper: `直接数据：${fieldName}[0]` },
-    { key: `${keyPrefix}End`, label: '最新价', value: stats[`${keyPrefix}End`], tone, helper: `直接数据：${fieldName}[last]` },
-    { key: `${keyPrefix}Change`, label: chartType === 'trend' ? '累计涨跌' : '区间涨跌', value: stats[`${keyPrefix}Change`], suffix: '%', valueClass: stats[`${keyPrefix}ChangePositive`] ? 'up' : 'down', helper: '公式：(最新价 - 起始价) / 起始价 × 100%' }
+    {
+      key: `${keyPrefix}End`,
+      label: '最新价',
+      value: endValue,
+      tone,
+      featured: true,
+      badge: unit,
+      valueClass: getPriceValueClass(endValue, startValue),
+      formula: '最新价 = 区间最后一个采样点'
+    },
+    {
+      key: `${keyPrefix}Max`,
+      label: '最高价',
+      value: maxValue,
+      tone,
+      valueClass: getPriceValueClass(maxValue, startValue),
+      formula: '最高价 = max(区间价格)'
+    },
+    {
+      key: `${keyPrefix}Min`,
+      label: '最低价',
+      value: minValue,
+      tone,
+      valueClass: getPriceValueClass(minValue, startValue),
+      formula: '最低价 = min(区间价格)'
+    },
+    {
+      key: `${keyPrefix}Start`,
+      label: '起始价',
+      value: startValue,
+      tone,
+      formula: '起始价 = 区间第一个采样点'
+    },
+    {
+      key: changeKey,
+      label: chartType === 'trend' ? '累计涨跌' : '区间涨跌',
+      value: stats[changeKey],
+      suffix: '%',
+      tone,
+      featured: true,
+      valueClass: stats[`${changeKey}Positive`] ? 'up' : 'down',
+      formula: '(最新价 - 起始价) / 起始价 × 100%'
+    },
+    {
+      key: `${keyPrefix}RangePct`,
+      label: '区间振幅',
+      value: stats[`${keyPrefix}RangePct`],
+      suffix: '%',
+      tone,
+      formula: '(最高价 - 最低价) / 最低价 × 100%'
+    },
+    {
+      key: `${keyPrefix}PositionPct`,
+      label: '区间位置',
+      value: stats[`${keyPrefix}PositionPct`],
+      suffix: '%',
+      tone,
+      meter: positionValue,
+      formula: '(最新价 - 最低价) / (最高价 - 最低价)'
+    },
+    {
+      key: `${keyPrefix}Distance`,
+      label: '距高点 / 距低点',
+      tone,
+      pairs: [
+        {
+          label: '距高点',
+          value: stats[`${keyPrefix}FromHighPct`],
+          suffix: '%',
+          valueClass: fromHighValue >= 0 ? 'up' : 'down'
+        },
+        {
+          label: '距低点',
+          value: stats[`${keyPrefix}FromLowPct`],
+          suffix: '%',
+          valueClass: fromLowValue >= 0 ? 'up' : 'down'
+        }
+      ],
+      formula: '分别相对最高价、最低价计算偏离百分比'
+    }
   ]
 }
 
@@ -77,17 +175,25 @@ export default {
 <style scoped>
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 14px;
-  margin: 0 0 18px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0 0 14px;
 }
 
 .stat-card {
-  padding: 18px;
-  border-radius: 22px;
+  display: flex;
+  flex-direction: column;
+  min-height: 144px;
+  padding: 14px 16px;
+  border-radius: 18px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   background: rgba(255, 255, 255, 0.05);
-  transition: background 0.25s ease, border-color 0.25s ease;
+  transition: background 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
+}
+
+.stat-card--featured {
+  background: linear-gradient(180deg, rgba(255, 214, 120, 0.18), rgba(255, 255, 255, 0.05));
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.14);
 }
 
 .stat-card--usd {
@@ -98,46 +204,117 @@ export default {
   background: linear-gradient(180deg, rgba(255, 122, 89, 0.12), rgba(255, 255, 255, 0.04));
 }
 
-.stat-card--rate {
-  background: linear-gradient(180deg, rgba(69, 208, 227, 0.14), rgba(255, 255, 255, 0.04));
+.stat-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
 }
 
 .stat-label {
-  margin: 0 0 10px;
+  margin: 0;
   color: rgba(255, 245, 225, 0.7);
-  font-size: 13px;
+  font-size: 12px;
+}
+
+.stat-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.09);
+  color: rgba(255, 245, 225, 0.82);
+  font-size: 10px;
+  white-space: nowrap;
 }
 
 .stat-value {
   margin: 0;
-  font-size: 28px;
+  font-size: 24px;
   line-height: 1.05;
   color: #fff7e6;
   font-weight: 800;
 }
 
-.stat-helper {
-  margin: 10px 0 0;
-  color: rgba(255, 245, 225, 0.56);
-  font-size: 12px;
+.stat-card--featured .stat-value {
+  font-size: 28px;
+}
+
+.stat-meter {
+  height: 6px;
+  margin-top: 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.stat-meter__fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #ffcf63, #ff8a5b);
+}
+
+.stat-pairs {
+  display: grid;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.stat-pair {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.stat-pair__label {
+  color: rgba(255, 245, 225, 0.62);
+  font-size: 11px;
+}
+
+.stat-pair__value {
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff7e6;
+}
+
+.stat-formula {
+  margin: auto 0 0;
+  padding-top: 10px;
+  color: rgba(255, 245, 225, 0.5);
+  font-size: 10px;
   line-height: 1.45;
 }
 
-.stat-value.up {
+.stat-value.up,
+.stat-pair__value.up {
   color: #ff6b6b;
 }
 
-.stat-value.down {
+.stat-value.down,
+.stat-pair__value.down {
   color: #38c172;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .stat-card {
+    min-height: 132px;
   }
 
   .stat-value {
     font-size: 22px;
+  }
+
+  .stat-card--featured .stat-value {
+    font-size: 24px;
   }
 }
 

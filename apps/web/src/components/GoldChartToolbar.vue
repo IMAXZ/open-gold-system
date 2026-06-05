@@ -1,35 +1,31 @@
 <template>
   <div class="toolbar-shell">
     <div class="toolbar-top">
-      <div class="title-block">
-        <p class="eyebrow">LIVE PRECIOUS METALS</p>
-        <h1 class="title">黄金价格仪表盘</h1>
-        <p class="subtitle">更清晰地查看价格、涨跌幅和汇率联动</p>
+      <div class="toolbar-top__group">
+        <div class="section-label section-label--inline">币种切换</div>
+        <div class="option-row option-row--currency">
+          <button
+            v-for="option in currencyOptions"
+            :key="option.value"
+            :class="['segmented-button', { active: currency === option.value }]"
+            @click="$emit('switch-currency', option.value)"
+          >
+            <span class="segmented-icon">{{ option.icon }}</span>
+            <span>{{ option.label }}</span>
+          </button>
+        </div>
       </div>
 
       <div class="toolbar-actions">
         <div class="unit-pill">
           <span class="unit-dot"></span>
-          当前单位：{{ unitLabel }}
+          <span>{{ unitLabel }}</span>
         </div>
         <button class="theme-button" @click="$emit('toggle-theme')">
           <span class="theme-icon">{{ theme === 'dark' ? '日' : '夜' }}</span>
-          {{ theme === 'dark' ? '浅色模式' : '深色模式' }}
+          {{ theme === 'dark' ? '浅色' : '深色' }}
         </button>
       </div>
-    </div>
-
-    <div class="section-label">币种切换</div>
-    <div class="option-row option-row--currency">
-      <button
-        v-for="option in currencyOptions"
-        :key="option.value"
-        :class="['segmented-button', { active: currency === option.value }]"
-        @click="$emit('switch-currency', option.value)"
-      >
-        <span class="segmented-icon">{{ option.icon }}</span>
-        <span>{{ option.label }}</span>
-      </button>
     </div>
 
     <div class="section-label">图表模式</div>
@@ -154,8 +150,8 @@ export default {
 
 <style scoped>
 .toolbar-shell {
-  margin-bottom: 22px;
-  padding: 28px;
+  margin-bottom: 14px;
+  padding: 18px 20px 20px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 28px;
   background:
@@ -169,35 +165,21 @@ export default {
 .toolbar-top {
   display: flex;
   justify-content: space-between;
-  gap: 20px;
-  align-items: flex-start;
-  margin-bottom: 24px;
+  gap: 16px;
+  align-items: flex-end;
+  margin-bottom: 16px;
 }
 
-.eyebrow {
-  margin: 0 0 10px;
-  font-size: 11px;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
-  color: rgba(255, 219, 136, 0.72);
-}
-
-.title {
-  margin: 0;
-  font-size: 38px;
-  line-height: 1.05;
-  color: #fff2c4;
-}
-
-.subtitle {
-  margin: 10px 0 0;
-  color: rgba(255, 245, 225, 0.72);
-  font-size: 14px;
+.toolbar-top__group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
 }
 
 .toolbar-actions {
   display: flex;
-  gap: 12px;
+  gap: 10px;
   flex-wrap: wrap;
   justify-content: flex-end;
 }
@@ -206,9 +188,9 @@ export default {
 .theme-button {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  min-height: 44px;
-  padding: 0 16px;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 14px;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(255, 255, 255, 0.08);
@@ -242,8 +224,8 @@ export default {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
+  width: 24px;
+  height: 24px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.12);
   font-size: 12px;
@@ -252,41 +234,45 @@ export default {
 
 .section-label,
 .card-title {
-  font-size: 12px;
+  font-size: 11px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: rgba(255, 236, 194, 0.72);
 }
 
 .section-label {
-  margin-bottom: 10px;
+  margin-bottom: 8px;
+}
+
+.section-label--inline {
+  margin-bottom: 0;
 }
 
 .card-title {
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
 
 .option-row {
   display: flex;
-  gap: 12px;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
 .option-row--currency {
-  margin-bottom: 22px;
+  margin-bottom: 0;
 }
 
 .option-row--chart {
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 }
 
 .segmented-button {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px 18px;
+  gap: 8px;
+  padding: 10px 14px;
   border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 18px;
+  border-radius: 16px;
   background: rgba(255, 255, 255, 0.05);
   color: rgba(255, 248, 235, 0.8);
   cursor: pointer;
@@ -300,19 +286,19 @@ export default {
 }
 
 .segmented-button--chart {
-  min-width: 148px;
+  min-width: 132px;
 }
 
 .controls-grid {
   display: grid;
   grid-template-columns: 1.2fr 1fr 1fr;
-  gap: 16px;
+  gap: 12px;
 }
 
 .glass-card {
-  padding: 18px;
+  padding: 16px;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 22px;
+  border-radius: 20px;
   background: rgba(255, 255, 255, 0.05);
   transition: background 0.25s ease, border-color 0.25s ease;
 }
@@ -320,22 +306,22 @@ export default {
 .date-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-bottom: 14px;
+  gap: 10px;
+  margin-bottom: 12px;
 }
 
 .date-field span {
   display: block;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   color: rgba(255, 245, 225, 0.72);
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .date-field input {
   width: 100%;
-  padding: 12px 14px;
+  padding: 10px 12px;
   border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 16px;
+  border-radius: 14px;
   background: rgba(5, 10, 20, 0.28);
   color: #fff;
   outline: none;
@@ -343,9 +329,9 @@ export default {
 
 .query-button {
   width: 100%;
-  min-height: 46px;
+  min-height: 42px;
   border: 1px solid rgba(255, 196, 80, 0.36);
-  border-radius: 16px;
+  border-radius: 14px;
   background: linear-gradient(135deg, #ffcf63, #ff8a5b);
   color: #2f1800;
   font-weight: 800;
@@ -360,11 +346,11 @@ export default {
 .chip-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
 }
 
 .chip-button {
-  padding: 10px 14px;
+  padding: 8px 12px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.05);
@@ -389,6 +375,7 @@ export default {
 
   .toolbar-top {
     flex-direction: column;
+    align-items: stretch;
   }
 
   .toolbar-actions {
@@ -398,12 +385,8 @@ export default {
 
 @media (max-width: 768px) {
   .toolbar-shell {
-    padding: 18px;
+    padding: 16px;
     border-radius: 22px;
-  }
-
-  .title {
-    font-size: 30px;
   }
 
   .date-grid {
@@ -412,12 +395,8 @@ export default {
 }
 
 @media (max-width: 480px) {
-  .title {
-    font-size: 24px;
-  }
-
   .toolbar-shell {
-    padding: 16px;
+    padding: 14px;
   }
 
   .segmented-button,
