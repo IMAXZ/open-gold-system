@@ -8,10 +8,14 @@ function formatAxisTime(time) {
 
 function calcChangeRate(values) {
   if (!values || values.length < 2) {
-    return values
+    return values || []
   }
 
   const base = values[0]
+  if (!base) {
+    return values.map(() => 0)
+  }
+
   return values.map((value) => ((value - base) / base) * 100)
 }
 
@@ -133,6 +137,7 @@ function buildTooltip(colors, formatter, axisPointer) {
     confine: true,
     padding: 0,
     showDelay: 0,
+    transitionDuration: 0.08,
     backgroundColor: colors.tooltipBg,
     borderColor: colors.tooltipBorder,
     borderWidth: 1,
@@ -153,20 +158,66 @@ function buildTooltipRow(color, label, value, suffix = '') {
   </div>`
 }
 
-function buildLineSeries({ name, data, color, width = 3 }) {
+function buildCrossPointer(color) {
+  return {
+    type: 'cross',
+    snap: true,
+    animation: false,
+    lineStyle: {
+      color,
+      width: 1,
+      type: 'dashed',
+      opacity: 0.9
+    },
+    label: {
+      show: true,
+      color: '#fffdf5',
+      backgroundColor: color,
+      borderRadius: 999,
+      padding: [6, 10]
+    }
+  }
+}
+
+function buildCategoryAxis(colors, data) {
+  return {
+    type: 'category',
+    boundaryGap: false,
+    data,
+    axisLine: {
+      lineStyle: {
+        color: colors.axis
+      }
+    },
+    axisLabel: {
+      color: colors.axis,
+      hideOverlap: true,
+      margin: 14
+    },
+    axisTick: {
+      show: false
+    }
+  }
+}
+
+function buildLineSeries({ name, data, color, width = 3, yAxisIndex = 0 }) {
   return {
     name,
     type: 'line',
     data,
-    smooth: true,
-    showSymbol: true,
+    yAxisIndex,
+    smooth: 0.18,
+    showSymbol: false,
     symbol: 'circle',
-    symbolSize: 6,
-    showAllSymbol: 'auto',
-    sampling: 'lttb',
+    symbolSize: 8,
+    showAllSymbol: false,
+    hoverAnimation: false,
+    z: 3,
     lineStyle: {
       width,
-      color
+      color,
+      shadowBlur: 10,
+      shadowColor: `${color}44`
     },
     itemStyle: {
       color,
@@ -175,11 +226,15 @@ function buildLineSeries({ name, data, color, width = 3 }) {
     },
     emphasis: {
       focus: 'series',
-      scale: true,
+      scale: false,
+      lineStyle: {
+        width: width + 1
+      },
       itemStyle: {
         borderWidth: 3,
         borderColor: '#fff',
-        shadowBlur: 12,
+        opacity: 1,
+        shadowBlur: 16,
         shadowColor: color
       }
     },
@@ -190,6 +245,46 @@ function buildLineSeries({ name, data, color, width = 3 }) {
       ])
     }
   }
+}
+
+function buildHoverSeries({ data, color, yAxisIndex = 0 }) {
+  return {
+    name: '__hover_hit__',
+    type: 'line',
+    data,
+    yAxisIndex,
+    smooth: false,
+    showSymbol: true,
+    symbol: 'circle',
+    symbolSize: 18,
+    lineStyle: {
+      width: 0,
+      opacity: 0
+    },
+    itemStyle: {
+      color,
+      opacity: 0
+    },
+    emphasis: {
+      scale: true,
+      itemStyle: {
+        opacity: 1,
+        color,
+        borderColor: '#fff',
+        borderWidth: 3,
+        shadowBlur: 18,
+        shadowColor: color
+      }
+    },
+    tooltip: {
+      show: false
+    },
+    z: 6
+  }
+}
+
+function getTooltipTarget(params) {
+  return params.find((param) => param.seriesName !== '__hover_hit__') || params[0]
 }
 
 export function buildChartOption({ chartType, currency, theme, data }) {
@@ -227,46 +322,17 @@ function buildPriceOption({ currency, theme, data, colors }) {
     tooltip: buildTooltip(
       colors,
       (params) => {
-        const item = params[0]
+        const item = getTooltipTarget(params)
         return `<div style="padding:12px 14px;background:${colors.tooltipStrip};font-weight:700;">${item.axisValue}</div>${buildTooltipRow(
           valueColor,
           seriesName,
-          item.value.toFixed(2),
+          Number(item.value).toFixed(2),
           ` ${unit}`
         )}`
       },
-      {
-        type: 'cross',
-        snap: true,
-        lineStyle: {
-          color: valueColor,
-          width: 1,
-          type: 'dashed'
-        },
-        label: {
-          show: true,
-          backgroundColor: valueColor
-        }
-      }
+      buildCrossPointer(valueColor)
     ),
-    xAxis: {
-      type: 'category',
-      boundaryGap: false,
-      data: data.xaxis.map(formatAxisTime),
-      axisLine: {
-        lineStyle: {
-          color: colors.axis
-        }
-      },
-      axisLabel: {
-        color: colors.axis,
-        hideOverlap: true,
-        margin: 14
-      },
-      axisTick: {
-        show: false
-      }
-    },
+    xAxis: buildCategoryAxis(colors, data.xaxis.map(formatAxisTime)),
     yAxis: [
       {
         type: 'value',
@@ -306,6 +372,10 @@ function buildPriceOption({ currency, theme, data, colors }) {
         name: seriesName,
         data: seriesData,
         color: valueColor
+      }),
+      buildHoverSeries({
+        data: seriesData,
+        color: valueColor
       })
     ]
   }
@@ -322,60 +392,31 @@ function buildTrendOption({ currency, theme, data, colors }) {
   return {
     ...buildBaseOption({
       theme,
-      title: `${currency} 涨跌幅趋势`,
-      subtext: `价格单位：${unit}，红涨绿跌`,
+      title: `${currency} 涨跌幅走势`,
+      subtext: `价格单位：${unit}，按区间起点计算百分比变化`,
       legend: [seriesName]
     }),
     tooltip: buildTooltip(
       colors,
       (params) => {
-        const item = params[0]
+        const item = getTooltipTarget(params)
         const rawPrice = sourceValues[item.dataIndex]
-        const trendColor = item.value >= 0 ? colors.up : colors.down
+        const trendColor = Number(item.value) >= 0 ? colors.up : colors.down
         return `<div style="padding:12px 14px;background:${colors.tooltipStrip};font-weight:700;">${item.axisValue}</div>${buildTooltipRow(
           mainColor,
           '原始价格',
-          rawPrice.toFixed(2),
+          Number(rawPrice).toFixed(2),
           ` ${unit}`
         )}${buildTooltipRow(
           trendColor,
           '区间涨跌',
-          `${item.value >= 0 ? '+' : ''}${item.value.toFixed(3)}`,
+          `${Number(item.value) >= 0 ? '+' : ''}${Number(item.value).toFixed(3)}`,
           '%'
         )}`
       },
-      {
-        type: 'cross',
-        snap: true,
-        lineStyle: {
-          color: mainColor,
-          width: 1,
-          type: 'dashed'
-        },
-        label: {
-          show: true,
-          backgroundColor: mainColor
-        }
-      }
+      buildCrossPointer(mainColor)
     ),
-    xAxis: {
-      type: 'category',
-      boundaryGap: false,
-      data: data.xaxis.map(formatAxisTime),
-      axisLine: {
-        lineStyle: {
-          color: colors.axis
-        }
-      },
-      axisLabel: {
-        color: colors.axis,
-        hideOverlap: true,
-        margin: 14
-      },
-      axisTick: {
-        show: false
-      }
-    },
+    xAxis: buildCategoryAxis(colors, data.xaxis.map(formatAxisTime)),
     yAxis: [
       {
         type: 'value',
@@ -433,7 +474,11 @@ function buildTrendOption({ currency, theme, data, colors }) {
             }
           ]
         }
-      }
+      },
+      buildHoverSeries({
+        data: changeValues,
+        color: mainColor
+      })
     ]
   }
 }
@@ -452,51 +497,22 @@ function buildRateOption({ theme, data, colors }) {
     tooltip: buildTooltip(
       colors,
       (params) => {
-        const item = params[0]
-        const trendColor = item.value >= 0 ? colors.up : colors.down
+        const item = getTooltipTarget(params)
+        const trendColor = Number(item.value) >= 0 ? colors.up : colors.down
         return `<div style="padding:12px 14px;background:${colors.tooltipStrip};font-weight:700;">${item.axisValue}</div>${buildTooltipRow(
           colors.rate,
           'USD/CNY 汇率',
-          rateValues[item.dataIndex].toFixed(4)
+          Number(rateValues[item.dataIndex]).toFixed(4)
         )}${buildTooltipRow(
           trendColor,
           '汇率涨跌',
-          `${item.value >= 0 ? '+' : ''}${item.value.toFixed(3)}`,
+          `${Number(item.value) >= 0 ? '+' : ''}${Number(item.value).toFixed(3)}`,
           '%'
         )}`
       },
-      {
-        type: 'cross',
-        snap: true,
-        lineStyle: {
-          color: colors.rate,
-          width: 1,
-          type: 'dashed'
-        },
-        label: {
-          show: true,
-          backgroundColor: colors.rate
-        }
-      }
+      buildCrossPointer(colors.rate)
     ),
-    xAxis: {
-      type: 'category',
-      boundaryGap: false,
-      data: data.xaxis.map(formatAxisTime),
-      axisLine: {
-        lineStyle: {
-          color: colors.axis
-        }
-      },
-      axisLabel: {
-        color: colors.axis,
-        hideOverlap: true,
-        margin: 14
-      },
-      axisTick: {
-        show: false
-      }
-    },
+    xAxis: buildCategoryAxis(colors, data.xaxis.map(formatAxisTime)),
     yAxis: [
       {
         type: 'value',
@@ -527,6 +543,10 @@ function buildRateOption({ theme, data, colors }) {
         name: '汇率涨跌幅',
         data: changeValues,
         color: colors.rate
+      }),
+      buildHoverSeries({
+        data: changeValues,
+        color: colors.rate
       })
     ]
   }
@@ -553,7 +573,7 @@ function buildCompareOption({ theme, data, colors }) {
     ...buildBaseOption({
       theme,
       title: '价格对比',
-      subtext: '美元按 美元/盎司，人民币按 元/克 展示',
+      subtext: '美元按美元/盎司，人民币按元/克展示',
       legend: ['USD 价格', 'CNY 价格']
     }),
     dataZoom: [
@@ -566,18 +586,17 @@ function buildCompareOption({ theme, data, colors }) {
     ],
     tooltip: buildTooltip(
       colors,
-      (params) => {
-        return `<div style="padding:12px 14px;background:${colors.tooltipStrip};font-weight:700;">${params[0].axisValue}</div>${params
+      (params) =>
+        `<div style="padding:12px 14px;background:${colors.tooltipStrip};font-weight:700;">${params[0].axisValue}</div>${params
           .map((item) =>
             buildTooltipRow(
               item.seriesName.includes('USD') ? colors.usd : colors.cny,
               item.seriesName,
-              item.value.toFixed(2),
+              Number(item.value).toFixed(2),
               item.seriesName.includes('USD') ? ' 美元/盎司' : ' 元/克'
             )
           )
-          .join('')}`
-      },
+          .join('')}`,
       {
         type: 'shadow'
       }
