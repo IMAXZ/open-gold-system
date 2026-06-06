@@ -48,7 +48,7 @@ mvn clean package
 - `POST /api/collect`
 - `GET /api/latest`
 - `GET /api/history?limit=10`
-- `GET /api/prices?startDate=2026-05-29&endDate=2026-05-29`
+- `GET /api/prices?startDate=2026-05-29T09:00&endDate=2026-05-29T18:30`
 
 如果接口发生变化，请同步检查：
 

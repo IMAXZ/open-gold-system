@@ -6,7 +6,7 @@ public interface IGoldPriceRepository
 
     Task<IReadOnlyList<GoldPriceRecord>> GetHistoryAsync(int limit, CancellationToken cancellationToken);
 
-    Task<IReadOnlyList<GoldPriceRecord>> GetByDateRangeAsync(DateOnly startDate, DateOnly endDate, CancellationToken cancellationToken);
+    Task<IReadOnlyList<GoldPriceRecord>> GetByDateRangeAsync(DateTime startInclusive, DateTime endExclusive, CancellationToken cancellationToken);
 
     Task<GoldPriceRecord> InsertAsync(GoldPriceInsertModel model, CancellationToken cancellationToken);
 }

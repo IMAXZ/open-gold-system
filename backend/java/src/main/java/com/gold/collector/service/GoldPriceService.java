@@ -17,7 +17,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
@@ -123,9 +122,10 @@ public class GoldPriceService {
         return records;
     }
 
-    public List<GoldPrice> getRecordsByDateRange(LocalDate startDate, LocalDate endDate) {
+    public List<GoldPrice> getRecordsByDateRange(LocalDateTime startInclusive, LocalDateTime endExclusive) {
         LambdaQueryWrapper<GoldPrice> query = new LambdaQueryWrapper<GoldPrice>()
-                .between(GoldPrice::getCreatedDate, startDate, endDate)
+                .ge(GoldPrice::getCreatedAt, startInclusive)
+                .lt(GoldPrice::getCreatedAt, endExclusive)
                 .orderByAsc(GoldPrice::getId);
         return goldPriceMapper.selectList(query);
     }

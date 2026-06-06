@@ -86,7 +86,10 @@ public sealed class CollectorServiceTests
         public Task<IReadOnlyList<GoldPriceRecord>> GetHistoryAsync(int limit, CancellationToken cancellationToken) =>
             Task.FromResult<IReadOnlyList<GoldPriceRecord>>([]);
 
-        public Task<IReadOnlyList<GoldPriceRecord>> GetByDateRangeAsync(DateOnly startDate, DateOnly endDate, CancellationToken cancellationToken) =>
+        public Task<IReadOnlyList<GoldPriceRecord>> GetByDateRangeAsync(
+            DateTime startInclusive,
+            DateTime endExclusive,
+            CancellationToken cancellationToken) =>
             Task.FromResult<IReadOnlyList<GoldPriceRecord>>([]);
 
         public Task<GoldPriceRecord> InsertAsync(GoldPriceInsertModel model, CancellationToken cancellationToken)

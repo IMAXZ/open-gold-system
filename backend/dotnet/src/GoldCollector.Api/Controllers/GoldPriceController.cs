@@ -55,20 +55,20 @@ public sealed class GoldPriceController(
 
     [HttpGet("prices")]
     public async Task<ActionResult<IReadOnlyList<GoldPriceResponse>>> GetPrices(
-        [FromQuery] DateOnly? startDate,
-        [FromQuery] DateOnly? endDate,
+        [FromQuery] string? startDate,
+        [FromQuery] string? endDate,
         CancellationToken cancellationToken)
     {
-        var start = startDate ?? DateOnly.FromDateTime(DateTime.Now);
-        var end = endDate ?? DateOnly.FromDateTime(DateTime.Now);
-
-        if (start > end)
+        if (!PriceRangeQueryParser.TryParse(startDate, endDate, DateTime.Now, out var range, out var errorMessage))
         {
-            ModelState.AddModelError(nameof(startDate), "开始日期不能大于结束日期。");
+            ModelState.AddModelError(nameof(startDate), errorMessage ?? "时间范围无效。");
             return ValidationProblem(ModelState);
         }
 
-        var records = await repository.GetByDateRangeAsync(start, end, cancellationToken);
+        var records = await repository.GetByDateRangeAsync(
+            range.StartInclusive,
+            range.EndExclusive,
+            cancellationToken);
         return Ok(records.Select(GoldPriceResponse.FromRecord).ToArray());
     }
 }

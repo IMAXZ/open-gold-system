@@ -49,7 +49,7 @@ dotnet test .\GoldCollector.DotNet.slnx
 - `POST /api/collect`
 - `GET /api/latest`
 - `GET /api/history?limit=10`
-- `GET /api/prices?startDate=2026-05-29&endDate=2026-05-29`
+- `GET /api/prices?startDate=2026-05-29T09:00&endDate=2026-05-29T18:30`
 
 ## Docker
 

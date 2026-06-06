@@ -3,7 +3,6 @@ package com.gold.collector.controller;
 import com.gold.collector.entity.GoldPrice;
 import com.gold.collector.service.GoldPriceService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,8 +10,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -45,11 +44,16 @@ public class GoldPriceController {
     }
 
     @GetMapping("/prices")
-    public ResponseEntity<List<GoldPrice>> getPrices(
-            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
-            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate) {
-        LocalDate safeStartDate = startDate != null ? startDate : LocalDate.now();
-        LocalDate safeEndDate = endDate != null ? endDate : LocalDate.now();
-        return ResponseEntity.ok(goldPriceService.getRecordsByDateRange(safeStartDate, safeEndDate));
+    public ResponseEntity<?> getPrices(
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate) {
+        try {
+            PriceRangeQueryParser.PriceRangeQuery range = PriceRangeQueryParser.parse(startDate, endDate);
+            return ResponseEntity.ok(goldPriceService.getRecordsByDateRange(
+                    range.startInclusive(),
+                    range.endExclusive()));
+        } catch (IllegalArgumentException exception) {
+            return ResponseEntity.badRequest().body(Map.of("message", exception.getMessage()));
+        }
     }
 }

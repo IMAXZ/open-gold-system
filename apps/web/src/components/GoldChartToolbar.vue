@@ -43,25 +43,27 @@
 
     <div class="controls-grid">
       <div class="glass-card">
-        <div class="card-title">日期范围</div>
+        <div class="card-title">时间范围</div>
         <div class="date-grid">
           <label class="date-field">
-            <span>开始日期</span>
+            <span>开始时间</span>
             <input
-              type="date"
+              type="datetime-local"
+              step="60"
               :value="startDate"
-              :max="today"
+              :max="maxDateTime"
               @input="$emit('update:start-date', $event.target.value)"
               @change="$emit('date-change')"
             />
           </label>
 
           <label class="date-field">
-            <span>结束日期</span>
+            <span>结束时间</span>
             <input
-              type="date"
+              type="datetime-local"
+              step="60"
               :value="endDate"
-              :max="today"
+              :max="maxDateTime"
               @input="$emit('update:end-date', $event.target.value)"
               @change="$emit('date-change')"
             />
@@ -120,10 +122,10 @@ export default {
     endDate: { type: String, required: true },
     granularity: { type: Number, required: true },
     loading: { type: Boolean, required: true },
+    maxDateTime: { type: String, required: true },
     selectedQuickDay: { type: Number, default: null },
     startDate: { type: String, required: true },
     theme: { type: String, required: true },
-    today: { type: String, required: true },
     unitLabel: { type: String, required: true }
   },
   emits: [

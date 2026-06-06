@@ -58,23 +58,25 @@ paths:
                   $ref: '#/components/schemas/GoldPriceResponse'
   /api/prices:
     get:
-      summary: Get records by date range
+      summary: Get records by time range
       parameters:
         - in: query
           name: startDate
           required: false
+          description: Supports `yyyy-MM-ddTHH:mm` for minute precision, or `yyyy-MM-dd` for whole-day compatibility.
           schema:
             type: string
-            format: date
+          example: 2026-05-29T09:00
         - in: query
           name: endDate
           required: false
+          description: Supports `yyyy-MM-ddTHH:mm` for minute precision, or `yyyy-MM-dd` for whole-day compatibility.
           schema:
             type: string
-            format: date
+          example: 2026-05-29T18:30
       responses:
         '200':
-          description: Date range records
+          description: Time range records
           content:
             application/json:
               schema:
@@ -82,7 +84,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/GoldPriceResponse'
         '400':
-          description: Invalid date range
+          description: Invalid time range
 components:
   schemas:
     GoldPriceResponse:

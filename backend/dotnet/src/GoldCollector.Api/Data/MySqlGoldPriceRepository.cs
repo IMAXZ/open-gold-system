@@ -55,7 +55,10 @@ public sealed class MySqlGoldPriceRepository(MySqlDataSource dataSource) : IGold
         return items.Select(x => x.ToRecord()).ToArray();
     }
 
-    public async Task<IReadOnlyList<GoldPriceRecord>> GetByDateRangeAsync(DateOnly startDate, DateOnly endDate, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<GoldPriceRecord>> GetByDateRangeAsync(
+        DateTime startInclusive,
+        DateTime endExclusive,
+        CancellationToken cancellationToken)
     {
         await using var connection = await dataSource.OpenConnectionAsync(cancellationToken);
         const string sql = """
@@ -72,7 +75,8 @@ public sealed class MySqlGoldPriceRepository(MySqlDataSource dataSource) : IGold
                 created_at AS CreatedAt,
                 created_date AS CreatedDate
             FROM gold_price
-            WHERE created_date BETWEEN @startDate AND @endDate
+            WHERE created_at >= @startInclusive
+              AND created_at < @endExclusive
             ORDER BY id ASC;
             """;
         var items = await connection.QueryAsync<GoldPriceRow>(
@@ -80,8 +84,8 @@ public sealed class MySqlGoldPriceRepository(MySqlDataSource dataSource) : IGold
                 sql,
                 new
                 {
-                    startDate = startDate.ToDateTime(TimeOnly.MinValue),
-                    endDate = endDate.ToDateTime(TimeOnly.MinValue)
+                    startInclusive,
+                    endExclusive
                 },
                 cancellationToken: cancellationToken));
         return items.Select(x => x.ToRecord()).ToArray();

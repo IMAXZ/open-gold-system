@@ -9,10 +9,10 @@
       :end-date="endDate"
       :granularity="granularity"
       :loading="loading"
+      :max-date-time="maxDateTime"
       :selected-quick-day="selectedQuickDay"
       :start-date="startDate"
       :theme="theme"
-      :today="today"
       :unit-label="unitLabel"
       @date-change="clearQuickSelection"
       @fetch="loadData"
@@ -65,7 +65,7 @@ import { buildChartOption } from '@/utils/goldChartOptions'
 
 const CHART_TITLES = {
   price: '价格走势',
-  trend: '涨跌幅趋势',
+  trend: '涨跌幅走势',
   rate: '汇率变化',
   compare: '双币种对比'
 }
@@ -91,11 +91,11 @@ export default {
       error,
       fetchData,
       loading,
+      maxDateTime,
       selectedQuickDay,
       setDateRangeByQuickDay,
       startDate,
-      stats,
-      today
+      stats
     } = useGoldChartData()
 
     const displayData = computed(() => aggregateChartData(chartData.value, granularity.value))
@@ -194,6 +194,7 @@ export default {
       handleQuickDaySelection,
       loadData,
       loading,
+      maxDateTime,
       selectedQuickDay,
       startDate,
       stats,
@@ -201,7 +202,6 @@ export default {
       switchCurrency,
       switchGranularity,
       theme,
-      today,
       toggleTheme,
       unitLabel
     }

@@ -3,6 +3,28 @@ import axios from 'axios'
 import apiConfig from '@/config/api.js'
 import { buildChartData, calculateStats } from '@/utils/goldChartData'
 
+function formatDateTime(date) {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  const hours = String(date.getHours()).padStart(2, '0')
+  const minutes = String(date.getMinutes()).padStart(2, '0')
+  return `${year}-${month}-${day}T${hours}:${minutes}`
+}
+
+function getDateTimeByOffset(offset, { endOfDay = false } = {}) {
+  const date = new Date()
+  date.setDate(date.getDate() - offset)
+
+  if (endOfDay) {
+    date.setHours(23, 59, 0, 0)
+  } else {
+    date.setHours(0, 0, 0, 0)
+  }
+
+  return formatDateTime(date)
+}
+
 export function useGoldChartData() {
   const startDate = ref('')
   const endDate = ref('')
@@ -11,34 +33,26 @@ export function useGoldChartData() {
   const selectedQuickDay = ref(0)
   const chartData = ref(null)
 
-  const today = computed(() => new Date().toISOString().split('T')[0])
+  const maxDateTime = computed(() => formatDateTime(new Date()))
   const stats = computed(() => calculateStats(chartData.value))
-
-  const formatDate = (date) => date.toISOString().split('T')[0]
-
-  const getDateByOffset = (offset) => {
-    const date = new Date()
-    date.setDate(date.getDate() - offset)
-    return formatDate(date)
-  }
 
   const setDateRangeByQuickDay = (days) => {
     selectedQuickDay.value = days
 
     if (days === 0) {
-      startDate.value = today.value
-      endDate.value = today.value
+      startDate.value = getDateTimeByOffset(0)
+      endDate.value = maxDateTime.value
       return
     }
 
     if (days === 1) {
-      startDate.value = getDateByOffset(1)
-      endDate.value = getDateByOffset(1)
+      startDate.value = getDateTimeByOffset(1)
+      endDate.value = getDateTimeByOffset(1, { endOfDay: true })
       return
     }
 
-    startDate.value = getDateByOffset(days - 1)
-    endDate.value = today.value
+    startDate.value = getDateTimeByOffset(days - 1)
+    endDate.value = maxDateTime.value
   }
 
   const clearQuickSelection = () => {
@@ -47,12 +61,12 @@ export function useGoldChartData() {
 
   const fetchData = async () => {
     if (!startDate.value || !endDate.value) {
-      error.value = '请选择日期范围'
+      error.value = '请选择时间范围'
       return null
     }
 
     if (startDate.value > endDate.value) {
-      error.value = '开始日期不能晚于结束日期'
+      error.value = '开始时间不能晚于结束时间'
       return null
     }
 
@@ -93,7 +107,7 @@ export function useGoldChartData() {
     error,
     selectedQuickDay,
     chartData,
-    today,
+    maxDateTime,
     stats,
     setDateRangeByQuickDay,
     clearQuickSelection,
