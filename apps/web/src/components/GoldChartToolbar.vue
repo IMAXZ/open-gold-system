@@ -47,26 +47,44 @@
         <div class="date-grid">
           <label class="date-field">
             <span>开始时间</span>
-            <input
-              type="datetime-local"
-              step="60"
-              :value="startDate"
-              :max="maxDateTime"
-              @input="$emit('update:start-date', $event.target.value)"
-              @change="$emit('date-change')"
-            />
+            <div class="date-time-row">
+              <input
+                type="date"
+                :value="startDatePart"
+                :max="maxDatePart"
+                @input="updateStartDate($event.target.value)"
+                @change="$emit('date-change')"
+              />
+              <input
+                type="time"
+                step="60"
+                :value="startTimePart"
+                :max="startTimeMax"
+                @input="updateStartTime($event.target.value)"
+                @change="$emit('date-change')"
+              />
+            </div>
           </label>
 
           <label class="date-field">
             <span>结束时间</span>
-            <input
-              type="datetime-local"
-              step="60"
-              :value="endDate"
-              :max="maxDateTime"
-              @input="$emit('update:end-date', $event.target.value)"
-              @change="$emit('date-change')"
-            />
+            <div class="date-time-row">
+              <input
+                type="date"
+                :value="endDatePart"
+                :max="maxDatePart"
+                @input="updateEndDate($event.target.value)"
+                @change="$emit('date-change')"
+              />
+              <input
+                type="time"
+                step="60"
+                :value="endTimePart"
+                :max="endTimeMax"
+                @input="updateEndTime($event.target.value)"
+                @change="$emit('date-change')"
+              />
+            </div>
           </label>
         </div>
 
@@ -107,12 +125,33 @@
 </template>
 
 <script>
+import { computed } from 'vue'
 import {
   CHART_TYPE_OPTIONS,
   CURRENCY_OPTIONS,
   GRANULARITY_OPTIONS,
   QUICK_DAYS
 } from '@/constants/goldChart'
+
+function splitDateTime(value) {
+  if (!value) {
+    return { date: '', time: '00:00' }
+  }
+
+  const [datePart = '', timePart = '00:00'] = value.split('T')
+  return {
+    date: datePart,
+    time: timePart.slice(0, 5) || '00:00'
+  }
+}
+
+function mergeDateTime(datePart, timePart) {
+  if (!datePart) {
+    return ''
+  }
+
+  return `${datePart}T${timePart || '00:00'}`
+}
 
 export default {
   name: 'GoldChartToolbar',
@@ -139,12 +178,56 @@ export default {
     'update:end-date',
     'update:start-date'
   ],
-  setup() {
+  setup(props, { emit }) {
+    const maxDateTimeParts = computed(() => splitDateTime(props.maxDateTime))
+    const startParts = computed(() => splitDateTime(props.startDate))
+    const endParts = computed(() => splitDateTime(props.endDate))
+
+    const maxDatePart = computed(() => maxDateTimeParts.value.date)
+    const maxTimePart = computed(() => maxDateTimeParts.value.time)
+
+    const startDatePart = computed(() => startParts.value.date)
+    const startTimePart = computed(() => startParts.value.time)
+    const endDatePart = computed(() => endParts.value.date)
+    const endTimePart = computed(() => endParts.value.time)
+
+    const startTimeMax = computed(() =>
+      startDatePart.value === maxDatePart.value ? maxTimePart.value : '23:59')
+    const endTimeMax = computed(() =>
+      endDatePart.value === maxDatePart.value ? maxTimePart.value : '23:59')
+
+    const updateStartDate = (datePart) => {
+      emit('update:start-date', mergeDateTime(datePart, startTimePart.value))
+    }
+
+    const updateStartTime = (timePart) => {
+      emit('update:start-date', mergeDateTime(startDatePart.value, timePart))
+    }
+
+    const updateEndDate = (datePart) => {
+      emit('update:end-date', mergeDateTime(datePart, endTimePart.value))
+    }
+
+    const updateEndTime = (timePart) => {
+      emit('update:end-date', mergeDateTime(endDatePart.value, timePart))
+    }
+
     return {
       chartTypeOptions: CHART_TYPE_OPTIONS,
       currencyOptions: CURRENCY_OPTIONS,
       granularityOptions: GRANULARITY_OPTIONS,
-      quickDays: QUICK_DAYS
+      quickDays: QUICK_DAYS,
+      maxDatePart,
+      startDatePart,
+      startTimePart,
+      endDatePart,
+      endTimePart,
+      startTimeMax,
+      endTimeMax,
+      updateStartDate,
+      updateStartTime,
+      updateEndDate,
+      updateEndTime
     }
   }
 }
@@ -319,8 +402,15 @@ export default {
   font-size: 12px;
 }
 
+.date-time-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(96px, 0.9fr);
+  gap: 8px;
+}
+
 .date-field input {
   width: 100%;
+  min-width: 0;
   padding: 10px 12px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 14px;
@@ -401,12 +491,21 @@ export default {
     padding: 14px;
   }
 
+  .date-time-row {
+    grid-template-columns: 1fr;
+  }
+
   .segmented-button,
   .query-button,
   .theme-button,
   .unit-pill {
     width: 100%;
     justify-content: center;
+  }
+
+  .segmented-button--chart {
+    min-width: 0;
+    flex: 1 1 100%;
   }
 }
 </style>
