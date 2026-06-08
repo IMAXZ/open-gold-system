@@ -1,14 +1,15 @@
 # open-gold-system
 
-`open-gold-system` 是一个黄金价格采集与展示系统的单仓库（monorepo）。
+`open-gold-system` 是一个黄金价格采集与展示系统的单仓库项目（monorepo）。
 
-当前仓库包含三部分：
+当前仓库包含以下部分：
 
 - `apps/web`：Vue 3 前端页面
+- `apps/mobile`：Capacitor iOS 容器工程
 - `backend/java`：Spring Boot + MyBatis-Plus 后端实现
 - `backend/dotnet`：ASP.NET Core 后端实现
 
-当前默认将 `.NET` 实现视为主实现，原因是它已经具备更完整的测试与 Docker 部署文件。`Java` 实现保留为同接口能力的备选实现。
+当前默认将 `.NET` 版本视为主实现，因为它拥有更完整的测试与部署配套；`Java` 版本作为同接口能力的备选实现保留。
 
 ## 目录结构
 
@@ -16,6 +17,7 @@
 open-gold-system/
   apps/
     web/
+    mobile/
   backend/
     java/
     dotnet/
@@ -41,7 +43,7 @@ open-gold-system/
 
 正式契约文件见：
 
-- [contracts/openapi/gold-price-api.yaml](/E:/2026/05/open-gold-system/contracts/openapi/gold-price-api.yaml)
+- [gold-price-api.yaml](/E:/2026/open-gold-system/contracts/openapi/gold-price-api.yaml)
 
 如果修改接口行为、参数或返回结构，至少需要同步更新：
 
@@ -54,8 +56,9 @@ open-gold-system/
 
 详细说明见：
 
-- [docs/local-dev.md](/E:/2026/05/open-gold-system/docs/local-dev.md)
-- [docs/architecture.md](/E:/2026/05/open-gold-system/docs/architecture.md)
+- [local-dev.md](/E:/2026/open-gold-system/docs/local-dev.md)
+- [architecture.md](/E:/2026/open-gold-system/docs/architecture.md)
+- [mobile-capacitor-ios.md](/E:/2026/open-gold-system/docs/mobile-capacitor-ios.md)
 
 ### 前端
 
@@ -64,6 +67,17 @@ cd .\apps\web
 npm install
 npm run serve
 ```
+
+### iOS 容器
+
+```powershell
+cd .\apps\mobile
+Copy-Item .env.example .env
+npm install
+npm run config:write
+```
+
+后续 `ios` 原生工程的生成与调试需要在 macOS 上继续执行 `npm run ios:add`、`npm run ios:sync` 和 `npm run ios:open`。
 
 ### Java 后端
 
@@ -107,4 +121,4 @@ docker compose -f docker-compose.java.yml up -d --build
 - `gold-chart-app` -> `apps/web`
 - `gold-collector` -> `backend/java` 与 `backend/dotnet`
 
-迁移说明见 [docs/migration-notes.md](/E:/2026/05/open-gold-system/docs/migration-notes.md)。
+迁移说明见 [migration-notes.md](/E:/2026/open-gold-system/docs/migration-notes.md)。

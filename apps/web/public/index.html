@@ -1,18 +1,19 @@
 <!DOCTYPE html>
-<html lang="">
+<html lang="zh-CN">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
     <link rel="icon" type="image/svg+xml" href="<%= BASE_URL %>logo.svg">
-    <title>黄金价格仪表盘</title>
+    <title>黄金价格看板</title>
     <script>
-      // 在应用启动前同步读取 public/config.json
       window.APP_CONFIG = { apiUrl: '' };
+
       try {
         var xhr = new XMLHttpRequest();
         xhr.open('GET', '<%= BASE_URL %>config.json', false);
         xhr.send();
+
         if (xhr.status === 200) {
           window.APP_CONFIG = JSON.parse(xhr.responseText);
         }
@@ -23,7 +24,7 @@
   </head>
   <body>
     <noscript>
-      <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
+      <strong>当前页面依赖 JavaScript，请启用后继续访问。</strong>
     </noscript>
     <div id="app"></div>
     <!-- built files will be auto injected -->

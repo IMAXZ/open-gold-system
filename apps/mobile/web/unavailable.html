@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#07111f" />
+    <title>服务器暂不可用</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body class="fallback-page">
+    <main class="fallback-card">
+      <img class="fallback-mark" src="./logo-mark.svg" alt="Open Gold" />
+      <p class="fallback-kicker">Remote Site Unavailable</p>
+      <h1>服务器暂时不可达</h1>
+      <p class="fallback-copy">
+        当前 iOS 容器配置的是一个远程 `http://IP:端口` 地址。请确认手机与服务器网络连通，并检查服务是否已经启动。
+      </p>
+      <div class="fallback-actions">
+        <button class="fallback-button" type="button" onclick="window.location.reload()">
+          重新尝试
+        </button>
+      </div>
+      <ul class="fallback-hints">
+        <li>确认后端服务与静态站点已启动</li>
+        <li>确认手机和服务器在同一网络或公网地址可访问</li>
+        <li>确认 IP 或端口变更后已经重新执行 `npm run ios:sync`</li>
+      </ul>
+    </main>
+  </body>
+</html>

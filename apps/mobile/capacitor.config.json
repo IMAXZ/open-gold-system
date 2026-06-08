@@ -1,0 +1,18 @@
+{
+  "appId": "com.opengold.mobile",
+  "appName": "Open Gold",
+  "webDir": "web",
+  "server": {
+    "url": "http://192.168.1.10:41736",
+    "cleartext": true,
+    "allowNavigation": [
+      "192.168.1.10"
+    ],
+    "errorPath": "unavailable.html"
+  },
+  "ios": {
+    "contentInset": "automatic",
+    "preferredContentMode": "mobile",
+    "scrollEnabled": true
+  }
+}

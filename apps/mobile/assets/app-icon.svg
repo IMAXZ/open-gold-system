@@ -1,0 +1,22 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1024" height="1024" rx="232" fill="url(#bg)" />
+  <circle cx="768" cy="232" r="156" fill="url(#glow)" fill-opacity="0.68" />
+  <circle cx="240" cy="804" r="184" fill="#43C6DB" fill-opacity="0.16" />
+  <rect x="248" y="214" width="528" height="596" rx="156" fill="url(#card)" />
+  <path d="M375 356H649V422H548L511 668H442L479 422H375V356Z" fill="#2C1A00" />
+  <defs>
+    <linearGradient id="bg" x1="128" y1="64" x2="896" y2="1024" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#091522" />
+      <stop offset="0.58" stop-color="#102037" />
+      <stop offset="1" stop-color="#07101C" />
+    </linearGradient>
+    <linearGradient id="glow" x1="660" y1="84" x2="862" y2="388" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFD86F" />
+      <stop offset="1" stop-color="#FF8C5A" />
+    </linearGradient>
+    <linearGradient id="card" x1="304" y1="246" x2="746" y2="788" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFD86F" />
+      <stop offset="1" stop-color="#FF8C5A" />
+    </linearGradient>
+  </defs>
+</svg>

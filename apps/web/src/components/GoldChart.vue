@@ -491,12 +491,17 @@ export default {
 }
 
 @media (max-width: 480px) {
+  .gold-chart-scene {
+    padding-bottom: 18px;
+  }
+
   .chart {
     height: 280px;
   }
 
   .chart-wrapper {
     min-height: 280px;
+    padding: 8px;
   }
 }
 </style>

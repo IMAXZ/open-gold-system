@@ -6,7 +6,7 @@
     <header class="hero">
       <div class="hero-main">
         <div class="brand-mark">
-          <img src="./assets/logo.svg" alt="黄金价格仪表盘" class="hero-logo" />
+          <img src="./assets/logo.svg" alt="黄金价格看板" class="hero-logo" />
         </div>
         <div class="hero-copy">
           <p class="hero-kicker">Gold Market View</p>
@@ -22,17 +22,85 @@
       </div>
     </header>
 
+    <section v-if="runtime.nativeContainer" class="runtime-banner">
+      <div>
+        <p class="runtime-banner__label">iOS 容器模式</p>
+        <p class="runtime-banner__copy">当前页面运行在移动容器中，可直接分享当前链接或在 Safari 中打开。</p>
+      </div>
+
+      <div class="runtime-banner__actions">
+        <button
+          class="runtime-banner__button runtime-banner__button--primary"
+          :disabled="sharing"
+          @click="handleShare"
+        >
+          {{ sharing ? '分享中...' : '分享当前页' }}
+        </button>
+        <button class="runtime-banner__button" :disabled="opening" @click="handleOpenExternal">
+          {{ opening ? '打开中...' : 'Safari 打开' }}
+        </button>
+      </div>
+    </section>
+
     <GoldChart />
   </div>
 </template>
 
 <script>
+import { ref } from 'vue'
 import GoldChart from './components/GoldChart.vue'
+import {
+  getRuntimeCapabilities,
+  openCurrentPageExternally,
+  shareCurrentPage
+} from './utils/runtimeBridge'
 
 export default {
   name: 'App',
   components: {
     GoldChart
+  },
+  setup() {
+    const runtime = getRuntimeCapabilities()
+    const sharing = ref(false)
+    const opening = ref(false)
+
+    const handleShare = async () => {
+      sharing.value = true
+
+      try {
+        const result = await shareCurrentPage()
+        if (result === 'copied') {
+          window.alert('当前页面链接已复制，可以直接发送给其他人。')
+        }
+      } catch (error) {
+        console.error('Share failed:', error)
+        window.alert('分享失败，请稍后重试。')
+      } finally {
+        sharing.value = false
+      }
+    }
+
+    const handleOpenExternal = async () => {
+      opening.value = true
+
+      try {
+        await openCurrentPageExternally()
+      } catch (error) {
+        console.error('Open external failed:', error)
+        window.alert('无法打开 Safari，请稍后重试。')
+      } finally {
+        opening.value = false
+      }
+    }
+
+    return {
+      runtime,
+      sharing,
+      opening,
+      handleShare,
+      handleOpenExternal
+    }
   }
 }
 </script>
@@ -80,7 +148,10 @@ body.gold-dashboard-dark {
 .app-shell {
   position: relative;
   overflow: hidden;
-  padding: 18px 20px 32px;
+  padding:
+    calc(18px + env(safe-area-inset-top))
+    20px
+    calc(32px + env(safe-area-inset-bottom));
 }
 
 .ambient {
@@ -216,6 +287,86 @@ body.gold-dashboard-light .hero-badge {
   color: rgba(54,37,10,0.84);
 }
 
+.runtime-banner {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  max-width: 1280px;
+  margin: 0 auto 14px;
+  padding: 14px 16px;
+  border-radius: 22px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(14px);
+}
+
+.runtime-banner__label,
+.runtime-banner__copy {
+  margin: 0;
+}
+
+.runtime-banner__label {
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255,219,136,0.72);
+}
+
+.runtime-banner__copy {
+  margin-top: 6px;
+  color: rgba(255,245,225,0.78);
+  font-size: 13px;
+}
+
+.runtime-banner__actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.runtime-banner__button {
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.08);
+  color: #fff7e6;
+  cursor: pointer;
+}
+
+.runtime-banner__button:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.runtime-banner__button--primary {
+  border-color: rgba(255,196,80,0.36);
+  background: linear-gradient(135deg, #ffcf63, #ff8a5b);
+  color: #341f00;
+  font-weight: 700;
+}
+
+body.gold-dashboard-light .runtime-banner {
+  border-color: rgba(170,130,40,0.18);
+  background: rgba(255,255,255,0.78);
+}
+
+body.gold-dashboard-light .runtime-banner__label {
+  color: rgba(98,67,10,0.8);
+}
+
+body.gold-dashboard-light .runtime-banner__copy {
+  color: rgba(54,37,10,0.82);
+}
+
+body.gold-dashboard-light .runtime-banner__button {
+  background: rgba(255,255,255,0.92);
+  border-color: rgba(170,130,40,0.18);
+  color: #3c2906;
+}
+
 @media (max-width: 768px) {
   .hero {
     align-items: flex-start;
@@ -230,11 +381,23 @@ body.gold-dashboard-light .hero-badge {
   .hero-badges {
     justify-content: flex-start;
   }
+
+  .runtime-banner {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .runtime-banner__actions {
+    justify-content: flex-start;
+  }
 }
 
 @media (max-width: 480px) {
   .app-shell {
-    padding: 12px 12px 24px;
+    padding:
+      calc(12px + env(safe-area-inset-top))
+      12px
+      calc(24px + env(safe-area-inset-bottom));
   }
 
   .hero {
@@ -252,6 +415,10 @@ body.gold-dashboard-light .hero-badge {
 
   .hero-copy h1 {
     font-size: 20px;
+  }
+
+  .runtime-banner__button {
+    width: 100%;
   }
 }
 </style>
