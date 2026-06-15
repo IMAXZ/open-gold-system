@@ -63,6 +63,10 @@ function toFixedString(value, digits) {
   return value.toFixed(digits)
 }
 
+function calcAbsoluteChange(current, base, digits = 2) {
+  return toFixedString(current - base, digits)
+}
+
 function calcPercentChange(current, base, digits = 3) {
   if (!base) {
     return toFixedString(0, digits)
@@ -100,6 +104,7 @@ function buildSeriesStats(values, firstValue, lastValue, digits) {
     avg: toFixedString(avg, digits),
     start: toFixedString(firstValue, digits),
     end: toFixedString(lastValue, digits),
+    changeValue: calcAbsoluteChange(lastValue, firstValue, digits),
     change: calcPercentChange(lastValue, firstValue),
     changePositive: lastValue >= firstValue,
     volatility: toFixedString(max - min, digits),
@@ -130,6 +135,7 @@ export function calculateStats(data) {
     usdAvg: usdStats.avg,
     usdStart: usdStats.start,
     usdEnd: usdStats.end,
+    usdChangeValue: usdStats.changeValue,
     usdChange: usdStats.change,
     usdChangePositive: usdStats.changePositive,
     usdVolatility: usdStats.volatility,
@@ -142,6 +148,7 @@ export function calculateStats(data) {
     cnyAvg: cnyStats.avg,
     cnyStart: cnyStats.start,
     cnyEnd: cnyStats.end,
+    cnyChangeValue: cnyStats.changeValue,
     cnyChange: cnyStats.change,
     cnyChangePositive: cnyStats.changePositive,
     cnyVolatility: cnyStats.volatility,

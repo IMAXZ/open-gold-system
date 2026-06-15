@@ -8,7 +8,8 @@
         item.tone ? `stat-card--${item.tone}` : '',
         item.featured ? 'stat-card--featured' : '',
         item.meter ? 'stat-card--meter' : '',
-        item.pairs ? 'stat-card--pairs' : ''
+        item.pairs ? 'stat-card--pairs' : '',
+        item.dualValue ? 'stat-card--dual' : ''
       ]"
     >
       <div class="stat-head">
@@ -16,7 +17,16 @@
         <span v-if="item.badge" class="stat-badge">{{ item.badge }}</span>
       </div>
 
-      <p v-if="!item.pairs" :class="['stat-value', item.valueClass]">
+      <div v-if="item.dualValue" class="stat-dual">
+        <p :class="['stat-value', item.valueClass]">
+          {{ item.prefix || '' }}{{ item.value }}{{ item.suffix || '' }}
+        </p>
+        <p :class="['stat-subvalue', item.subValueClass || item.valueClass]">
+          {{ item.subPrefix || '' }}{{ item.subValue }}{{ item.subSuffix || '' }}
+        </p>
+      </div>
+
+      <p v-else-if="!item.pairs" :class="['stat-value', item.valueClass]">
         {{ item.prefix || '' }}{{ item.value }}{{ item.suffix || '' }}
       </p>
 
@@ -57,6 +67,10 @@ function getPriceValueClass(value, start) {
   return ''
 }
 
+function getSignedPrefix(value) {
+  return Number(value) > 0 ? '+' : ''
+}
+
 function buildItems(chartType, currency, stats) {
   if (!stats) {
     return []
@@ -70,9 +84,13 @@ function buildItems(chartType, currency, stats) {
   const maxValue = stats[`${keyPrefix}Max`]
   const minValue = stats[`${keyPrefix}Min`]
   const changeKey = `${keyPrefix}Change`
+  const changeValueKey = `${keyPrefix}ChangeValue`
+  const volatilityKey = `${keyPrefix}Volatility`
   const positionValue = Number(stats[`${keyPrefix}PositionPct`])
   const fromHighValue = Number(stats[`${keyPrefix}FromHighPct`])
   const fromLowValue = Number(stats[`${keyPrefix}FromLowPct`])
+  const changePositive = stats[`${changeKey}Positive`]
+  const changeClass = changePositive ? 'up' : 'down'
 
   return [
     {
@@ -111,20 +129,27 @@ function buildItems(chartType, currency, stats) {
     {
       key: changeKey,
       label: chartType === 'trend' ? '累计涨跌' : '区间涨跌',
-      value: stats[changeKey],
-      suffix: '%',
+      value: stats[changeValueKey],
+      prefix: getSignedPrefix(stats[changeValueKey]),
       tone,
       featured: true,
-      valueClass: stats[`${changeKey}Positive`] ? 'up' : 'down',
-      formula: '(最新价 - 起始价) / 起始价 × 100%'
+      dualValue: true,
+      subValue: stats[changeKey],
+      subPrefix: getSignedPrefix(stats[changeKey]),
+      subSuffix: '%',
+      valueClass: changeClass,
+      subValueClass: changeClass,
+      formula: '实际值 = 最新价 - 起始价；百分比 = (最新价 - 起始价) / 起始价 × 100%'
     },
     {
       key: `${keyPrefix}RangePct`,
       label: '区间振幅',
-      value: stats[`${keyPrefix}RangePct`],
-      suffix: '%',
+      value: stats[volatilityKey],
       tone,
-      formula: '(最高价 - 最低价) / 最低价 × 100%'
+      dualValue: true,
+      subValue: stats[`${keyPrefix}RangePct`],
+      subSuffix: '%',
+      formula: '实际值 = 最高价 - 最低价；百分比 = (最高价 - 最低价) / 最低价 × 100%'
     },
     {
       key: `${keyPrefix}PositionPct`,
@@ -230,6 +255,11 @@ export default {
   white-space: nowrap;
 }
 
+.stat-dual {
+  display: grid;
+  gap: 6px;
+}
+
 .stat-value {
   margin: 0;
   font-size: 24px;
@@ -238,8 +268,20 @@ export default {
   font-weight: 800;
 }
 
+.stat-subvalue {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.2;
+  color: rgba(255, 247, 230, 0.82);
+  font-weight: 700;
+}
+
 .stat-card--featured .stat-value {
   font-size: 28px;
+}
+
+.stat-card--featured .stat-subvalue {
+  font-size: 15px;
 }
 
 .stat-meter {
@@ -289,11 +331,13 @@ export default {
 }
 
 .stat-value.up,
+.stat-subvalue.up,
 .stat-pair__value.up {
   color: #ff6b6b;
 }
 
 .stat-value.down,
+.stat-subvalue.down,
 .stat-pair__value.down {
   color: #38c172;
 }
